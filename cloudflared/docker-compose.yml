@@ -2,7 +2,7 @@ services:
   rag-openclaw:
     container_name: rag-openclaw
     build: .
-    image: hosteurdkuser/rag-openclaw:v0.5.0
+    image: hosteurdkuser/rag-openclaw:v0.6.0
     init: true
     env_file: .env
     environment:
@@ -23,7 +23,7 @@ services:
 
   openclaw-cli:
     container_name: openclaw-cli
-    image: hosteurdkuser/rag-openclaw:v0.5.0
+    image: hosteurdkuser/rag-openclaw:v0.6.0
     init: true
     env_file: .env
     environment:
