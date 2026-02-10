@@ -1,0 +1,5 @@
+.env
+.ssh-agent/
+workspace/
+node_modules/
+.DS_Store

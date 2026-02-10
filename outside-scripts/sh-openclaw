@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Attach to the running rag-openclaw container and start an OpenClaw shell
+set -e
+
+CONTAINER="rag-openclaw"
+
+if ! docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null | grep -q true; then
+  echo "Error: container '$CONTAINER' is not running."
+  echo "Start it with: docker compose up -d"
+  exit 1
+fi
+
+exec docker exec -it "$CONTAINER" openclaw

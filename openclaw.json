@@ -1,0 +1,13 @@
+{
+  "gateway": {
+    "bind": "lan",
+    "port": 18789,
+    "trustedProxies": ["172.16.0.0/12"],
+    "auth": {
+      "mode": "token"
+    },
+    "controlUi": {
+      "allowInsecureAuth": true
+    }
+  }
+}

@@ -1,0 +1,31 @@
+services:
+  rag-openclaw:
+    container_name: rag-openclaw
+    build: .
+    image: hosteurdkuser/rag-openclaw:v0.4.0
+    env_file: .env
+    volumes:
+      - ./workspace:/home/agent/workspace
+      - openclaw-state:/home/agent/.openclaw
+      - repos:/home/agent/repos
+      - ./.ssh-agent:/home/agent/.ssh:ro
+    ports:
+      - "18789:18789"
+      - "18790:18790"
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  cloudflared:
+    container_name: cloudflared
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - rag-openclaw
+
+volumes:
+  openclaw-state:
+  repos:
