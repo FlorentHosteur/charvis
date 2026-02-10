@@ -11,7 +11,7 @@ fi
 
 # If no command specified, start the OpenClaw gateway
 if [ $# -eq 0 ] || [ "$1" = "gateway" ]; then
-  exec openclaw gateway --bind lan
+  exec openclaw gateway --bind lan --port 18789
 else
   exec "$@"
 fi

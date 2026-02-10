@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Run OpenClaw CLI commands inside a temporary container
+set -e
+
+COMPOSE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+exec docker compose -f "$COMPOSE_DIR/docker-compose.yml" run --rm openclaw-cli "$@"

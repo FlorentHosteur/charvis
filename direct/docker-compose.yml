@@ -3,10 +3,15 @@ services:
     container_name: rag-openclaw-direct
     build: .
     image: hosteurdkuser/rag-openclaw:v0.5.0
+    init: true
     env_file: .env
+    environment:
+      - BROWSER=echo
+      - HOME=/home/agent
+      - TERM=xterm-256color
     volumes:
-      - ./workspace:/home/agent/workspace
       - openclaw-state:/home/agent/.openclaw
+      - ./workspace:/home/agent/workspace
       - repos:/home/agent/repos
       - ./.ssh-agent:/home/agent/.ssh:ro
     ports:
@@ -15,6 +20,23 @@ services:
     stdin_open: true
     tty: true
     restart: unless-stopped
+
+  openclaw-cli:
+    container_name: openclaw-cli-direct
+    image: hosteurdkuser/rag-openclaw:v0.5.0
+    init: true
+    env_file: .env
+    environment:
+      - BROWSER=echo
+    volumes:
+      - openclaw-state:/home/agent/.openclaw
+      - ./workspace:/home/agent/workspace
+      - repos:/home/agent/repos
+      - ./.ssh-agent:/home/agent/.ssh:ro
+    stdin_open: true
+    tty: true
+    entrypoint: ["openclaw"]
+    profiles: ["cli"]
 
 volumes:
   openclaw-state:
