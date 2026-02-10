@@ -2,7 +2,7 @@ services:
   rag-openclaw:
     container_name: rag-openclaw-direct
     build: .
-    image: hosteurdkuser/rag-openclaw:v0.4.0
+    image: hosteurdkuser/rag-openclaw:v0.5.0
     env_file: .env
     volumes:
       - ./workspace:/home/agent/workspace
