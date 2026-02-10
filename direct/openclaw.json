@@ -2,8 +2,12 @@
   "gateway": {
     "bind": "lan",
     "port": 18789,
+    "trustedProxies": ["127.0.0.1", "::1"],
     "auth": {
       "mode": "token"
+    },
+    "controlUi": {
+      "allowInsecureAuth": true
     }
   }
 }
