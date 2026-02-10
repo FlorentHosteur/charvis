@@ -123,11 +123,13 @@ It will prompt you for:
 
 | Prompt | Required | Notes |
 |---|---|---|
-| Anthropic API key | No | Needed for Claude Code and OpenClaw |
-| OpenAI API key | No | Needed for OpenCode CLI with OpenAI models |
-| Kimi API key | No | Needed for Kimi CLI |
-| GitHub token | No | Needed for Git operations via HTTPS |
 | Cloudflare Tunnel token | **Yes** | The token you copied in Step 2.3 |
+| Anthropic API key | No | Enables Claude Code and OpenClaw AI features |
+| OpenAI API key | No | Enables OpenCode CLI with OpenAI models |
+| Kimi API key | No | Enables Kimi CLI |
+| GitHub token | No | Enables Git operations via HTTPS |
+
+All API keys are **optional** — you can add them later by editing `.env`. Only the Cloudflare Tunnel token and `OPENCLAW_GATEWAY_TOKEN` (auto-generated) are needed to start the stack.
 
 The script will automatically:
 
@@ -176,12 +178,22 @@ cat .ssh-agent/id_ed25519.pub
 docker compose up -d
 ```
 
-This starts two containers:
+This starts two always-on containers:
 
 | Container | Image | Purpose |
 |---|---|---|
-| `rag-openclaw` | `hosteurdkuser/rag-openclaw:v0.3.0` | Agent environment + OpenClaw gateway |
+| `rag-openclaw` | `hosteurdkuser/rag-openclaw:v0.6.0` | Agent environment + OpenClaw gateway |
 | `cloudflared` | `cloudflare/cloudflared:latest` | Tunnel connector to Cloudflare edge |
+
+A third service, `openclaw-cli`, is available on demand for running OpenClaw CLI commands:
+
+```bash
+# Via the helper script
+openclaw-cli <command>
+
+# Or directly via Docker Compose
+docker compose run --rm openclaw-cli <command>
+```
 
 Check that everything is running:
 
@@ -260,9 +272,9 @@ docker compose down -v
 ## File Overview
 
 ```
-Charvis/
+cloudflared/
   Dockerfile            # Image definition
-  docker-compose.yml    # Service orchestration
+  docker-compose.yml    # Service orchestration (gateway + CLI + cloudflared)
   entrypoint.sh         # Container entrypoint
   openclaw.json         # OpenClaw gateway config
   setup.sh              # Interactive setup script
@@ -272,9 +284,9 @@ Charvis/
   .dockerignore         # Build exclusions
   workspace/            # Bind-mounted working directory
   outside-scripts/
-    sh-openclaw         # Host helper: attach to OpenClaw
+    sh-openclaw         # Host helper: attach to running gateway container
+    openclaw-cli        # Host helper: run OpenClaw CLI commands
     README.md           # Helper scripts documentation
-  README.md             # Project overview
   INSTALL.md            # This file
 ```
 
