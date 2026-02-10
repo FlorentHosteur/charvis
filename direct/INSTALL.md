@@ -1,0 +1,238 @@
+# Installation Guide (Direct Access)
+
+Step-by-step guide to install, configure, and run RAG OpenClaw with direct port access (no Cloudflare tunnel).
+
+---
+
+## Prerequisites
+
+- **Docker Desktop** (macOS/Windows) or **Docker Engine + Docker Compose v2** (Linux)
+- A terminal with `bash` or `zsh`
+
+---
+
+## Security Warning
+
+This variant exposes the OpenClaw gateway directly on your network. If you are not running on a trusted local network, you should:
+
+- **Use a firewall** to restrict access to ports 18789 and 18790 to trusted IPs only
+- **Use a VPN** (e.g., WireGuard, Tailscale) to access the instance remotely instead of exposing it to the public internet
+- **Never expose these ports to the public internet** without additional authentication and TLS termination in front of them
+
+For internet-facing deployments, consider using the `cloudflared/` variant with Cloudflare Zero Trust instead.
+
+---
+
+## Step 1: Clone the Repository
+
+```bash
+git clone <your-repo-url> Charvis
+cd Charvis/direct
+```
+
+---
+
+## Step 2: Run the Setup Script
+
+The interactive setup script configures everything in one pass:
+
+```bash
+./setup.sh
+```
+
+It will prompt you for:
+
+| Prompt | Required | Notes |
+|---|---|---|
+| Anthropic API key | No | Needed for Claude Code and OpenClaw |
+| OpenAI API key | No | Needed for OpenCode CLI with OpenAI models |
+| Kimi API key | No | Needed for Kimi CLI |
+| GitHub token | No | Needed for Git operations via HTTPS |
+
+The script will automatically:
+
+1. Write all variables to `.env`
+2. Generate a random `OPENCLAW_GATEWAY_TOKEN` for gateway authentication
+3. Generate an SSH key pair (Ed25519) for Git operations
+4. Make the helper scripts executable
+5. Add `outside-scripts/` to your shell PATH
+
+At the end, it prints a summary with:
+- Your gateway token
+- Your SSH public key (to add to GitHub/GitLab)
+- Commands to start the stack
+
+---
+
+## Step 3: Add the SSH Key to GitHub/GitLab
+
+The setup script generated an SSH key pair and printed the public key. Add it to your Git provider:
+
+### GitHub
+
+1. Go to [https://github.com/settings/keys](https://github.com/settings/keys)
+2. Click **New SSH key**
+3. Title: `openclaw-agent`
+4. Paste the public key
+5. Click **Add SSH key**
+
+### GitLab
+
+1. Go to **Preferences** > **SSH Keys**
+2. Paste the public key
+3. Click **Add key**
+
+You can view the public key again at any time:
+
+```bash
+cat .ssh-agent/id_ed25519.pub
+```
+
+---
+
+## Step 4: Start the Stack
+
+```bash
+docker compose up -d
+```
+
+This starts one container:
+
+| Container | Image | Purpose |
+|---|---|---|
+| `rag-openclaw-direct` | `hosteurdkuser/rag-openclaw:v0.4.0` | Agent environment + OpenClaw gateway |
+
+Check that everything is running:
+
+```bash
+docker compose ps
+```
+
+View logs:
+
+```bash
+docker compose logs -f
+```
+
+---
+
+## Step 5: Connect
+
+### Via terminal (local)
+
+```bash
+sh-openclaw
+```
+
+Or directly:
+
+```bash
+docker exec -it rag-openclaw-direct bash
+```
+
+### Via gateway
+
+Open your browser and go to:
+
+```
+http://localhost:18789
+```
+
+Or from another machine on the same network:
+
+```
+http://<host-ip>:18789
+```
+
+Authenticate with the gateway token printed by the setup script. You can retrieve it from `.env`:
+
+```bash
+grep OPENCLAW_GATEWAY_TOKEN .env
+```
+
+---
+
+## Updating
+
+### Pull the latest image
+
+```bash
+docker compose pull rag-openclaw
+docker compose up -d
+```
+
+### Rebuild from source
+
+```bash
+docker compose build --no-cache
+docker compose up -d
+```
+
+---
+
+## Stopping
+
+```bash
+# Stop containers (keeps volumes)
+docker compose down
+
+# Stop and delete all volumes (data loss!)
+docker compose down -v
+```
+
+---
+
+## File Overview
+
+```
+direct/
+  Dockerfile            # Image definition
+  docker-compose.yml    # Service orchestration
+  entrypoint.sh         # Container entrypoint
+  openclaw.json         # OpenClaw gateway config
+  setup.sh              # Interactive setup script
+  .env.example          # Environment variable template
+  .env                  # Your actual config (created by setup.sh)
+  .ssh-agent/           # SSH key pair (created by setup.sh)
+  .dockerignore         # Build exclusions
+  workspace/            # Bind-mounted working directory
+  outside-scripts/
+    sh-openclaw         # Host helper: attach to OpenClaw
+    README.md           # Helper scripts documentation
+  INSTALL.md            # This file
+```
+
+---
+
+## Troubleshooting
+
+### Gateway not accessible
+
+- Verify the container is running: `docker compose ps`
+- Check logs: `docker compose logs rag-openclaw`
+- Verify the port is published: `docker port rag-openclaw-direct`
+- Test locally: `curl http://localhost:18789`
+
+### SSH key not working inside container
+
+The key is mounted read-only from `.ssh-agent/`. Verify:
+
+```bash
+docker exec rag-openclaw-direct ls -la /home/agent/.ssh/
+```
+
+The private key must have permissions `600` or stricter. If Git complains, check the host-side permissions:
+
+```bash
+chmod 600 .ssh-agent/id_ed25519
+chmod 644 .ssh-agent/id_ed25519.pub
+```
+
+### "Permission denied" for CLI tools
+
+Ensure the container runs as `agent`:
+
+```bash
+docker exec rag-openclaw-direct whoami
+# Expected: agent
+```

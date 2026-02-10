@@ -1,0 +1,21 @@
+services:
+  rag-openclaw:
+    container_name: rag-openclaw-direct
+    build: .
+    image: hosteurdkuser/rag-openclaw:v0.4.0
+    env_file: .env
+    volumes:
+      - ./workspace:/home/agent/workspace
+      - openclaw-state:/home/agent/.openclaw
+      - repos:/home/agent/repos
+      - ./.ssh-agent:/home/agent/.ssh:ro
+    ports:
+      - "18789:18789"
+      - "18790:18790"
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  openclaw-state:
+  repos:
