@@ -103,7 +103,7 @@ This starts one always-on container:
 
 | Container | Image | Purpose |
 |---|---|---|
-| `rag-openclaw-direct` | `hosteurdkuser/rag-openclaw:v0.6.0` | Agent environment + OpenClaw gateway |
+| `rag-openclaw-direct` | `hosteurdkuser/rag-openclaw:v0.7.0` | Agent environment + OpenClaw gateway |
 
 A second service, `openclaw-cli`, is available on demand for running OpenClaw CLI commands:
 

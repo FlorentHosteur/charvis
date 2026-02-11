@@ -2,7 +2,7 @@ services:
   rag-openclaw:
     container_name: rag-openclaw
     build: .
-    image: hosteurdkuser/rag-openclaw:v0.6.0
+    image: hosteurdkuser/rag-openclaw:v0.7.0
     init: true
     env_file: .env
     environment:
@@ -23,7 +23,7 @@ services:
 
   openclaw-cli:
     container_name: openclaw-cli
-    image: hosteurdkuser/rag-openclaw:v0.6.0
+    image: hosteurdkuser/rag-openclaw:v0.7.0
     init: true
     env_file: .env
     environment:
@@ -35,7 +35,7 @@ services:
       - ./.ssh-agent:/home/agent/.ssh:ro
     stdin_open: true
     tty: true
-    entrypoint: ["openclaw"]
+    entrypoint: ["node", "/app/dist/index.js"]
     profiles:
       - cli
 

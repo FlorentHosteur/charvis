@@ -2,7 +2,7 @@
 
 Docker runtime for the **OpenClaw** agent bot -- a pre-configured container packed with Claude Code, OpenCode CLI, Kimi CLI, and a full suite of developer tooling. Ship it behind a Cloudflare Zero Trust Tunnel for secure remote access, or expose ports directly for local development.
 
-**Docker Hub:** [`hosteurdkuser/rag-openclaw:v0.6.0`](https://hub.docker.com/r/hosteurdkuser/rag-openclaw)
+**Docker Hub:** [`hosteurdkuser/rag-openclaw:v0.7.0`](https://hub.docker.com/r/hosteurdkuser/rag-openclaw)
 
 ---
 
@@ -49,7 +49,7 @@ Two ready-made installation variants live in subdirectories. Pick the one that f
 | **Reverse proxy** | Cloudflare handles TLS | HAProxy config included (TLS, rate limiting, IP allowlisting) |
 | **Best for** | Production, remote teams, public internet | Local development, trusted networks |
 
-Both variants pull the same image from Docker Hub: `hosteurdkuser/rag-openclaw:v0.6.0`.
+Both variants pull the same image from Docker Hub: `hosteurdkuser/rag-openclaw:v0.7.0`.
 
 ---
 
@@ -144,13 +144,13 @@ Each variant is self-contained. You can `cd` into either directory and follow it
 The pre-built image is published to Docker Hub:
 
 ```
-hosteurdkuser/rag-openclaw:v0.6.0
+hosteurdkuser/rag-openclaw:v0.7.0
 ```
 
 Pull it explicitly:
 
 ```bash
-docker pull hosteurdkuser/rag-openclaw:v0.6.0
+docker pull hosteurdkuser/rag-openclaw:v0.7.0
 ```
 
 Both `docker-compose.yml` files reference this image and will pull it automatically on first `docker compose up`.
@@ -211,7 +211,7 @@ If you want to rebuild the image locally instead of pulling from Docker Hub:
 cd cloudflared   # or: cd direct
 
 # Build for amd64
-docker build --platform linux/amd64 -t hosteurdkuser/rag-openclaw:v0.6.0 .
+docker build --platform linux/amd64 -t hosteurdkuser/rag-openclaw:v0.7.0 .
 
 # Or build via Docker Compose
 docker compose build
@@ -221,8 +221,8 @@ To push a custom build to Docker Hub:
 
 ```bash
 docker login
-docker push hosteurdkuser/rag-openclaw:v0.6.0
-docker tag hosteurdkuser/rag-openclaw:v0.6.0 hosteurdkuser/rag-openclaw:latest
+docker push hosteurdkuser/rag-openclaw:v0.7.0
+docker tag hosteurdkuser/rag-openclaw:v0.7.0 hosteurdkuser/rag-openclaw:latest
 docker push hosteurdkuser/rag-openclaw:latest
 ```
 

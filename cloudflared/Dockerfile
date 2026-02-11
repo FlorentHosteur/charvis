@@ -30,14 +30,33 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
   && apt-get install -y --no-install-recommends nodejs \
   && rm -rf /var/lib/apt/lists/*
 
-# ── Layer 3: Claude Code (native installer) ──────────────────────────
+# ── Layer 3: Build OpenClaw from source (matches official Dockerfile) ─
+RUN corepack enable
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:${PATH}"
+
+ARG OPENCLAW_DOCKER_APT_PACKAGES=""
+RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
+      apt-get update && \
+      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
+    fi
+
+RUN git clone --depth 1 https://github.com/openclaw/openclaw.git /app
+WORKDIR /app
+RUN pnpm install --frozen-lockfile
+RUN pnpm build
+ENV OPENCLAW_PREFER_PNPM=1
+RUN pnpm ui:build \
+  && rm -rf /app/.git /root/.cache /tmp/* \
+  && pnpm store prune
+
+# ── Layer 4: Claude Code (native installer) ──────────────────────────
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
-# ── Layer 4: OpenCode CLI ────────────────────────────────────────────
+# ── Layer 5: OpenCode CLI ────────────────────────────────────────────
 RUN curl -fsSL https://opencode.ai/install | bash
-
-# ── Layer 5: OpenClaw ───────────────────────────────────────────────
-RUN npm install -g openclaw@latest
 
 # ── Layer 6: Install uv system-wide ─────────────────────────────────
 RUN curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 bash \
@@ -54,6 +73,11 @@ RUN usermod -l agent -d /home/agent -m ubuntu \
 RUN cp /root/.local/bin/claude /usr/local/bin/claude \
   && cp /root/.opencode/bin/opencode /usr/local/bin/opencode \
   && chmod 755 /usr/local/bin/claude /usr/local/bin/opencode
+
+# Set ownership of OpenClaw app to agent
+RUN chown -R agent:agent /app
+
+ENV NODE_ENV=production
 
 WORKDIR /home/agent/workspace
 

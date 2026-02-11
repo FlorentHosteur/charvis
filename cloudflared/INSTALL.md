@@ -182,7 +182,7 @@ This starts two always-on containers:
 
 | Container | Image | Purpose |
 |---|---|---|
-| `rag-openclaw` | `hosteurdkuser/rag-openclaw:v0.6.0` | Agent environment + OpenClaw gateway |
+| `rag-openclaw` | `hosteurdkuser/rag-openclaw:v0.7.0` | Agent environment + OpenClaw gateway |
 | `cloudflared` | `cloudflare/cloudflared:latest` | Tunnel connector to Cloudflare edge |
 
 A third service, `openclaw-cli`, is available on demand for running OpenClaw CLI commands:
